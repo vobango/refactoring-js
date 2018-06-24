@@ -1,4 +1,3 @@
-fs = require('fs');
 // songs
 imagine = ['c', 'cmaj7', 'f', 'am', 'dm', 'g', 'e7'];
 somewhereOverTheRainbow = ['c', 'em', 'f', 'g', 'am'];
@@ -30,7 +29,7 @@ function train(chords, label) {
             allChords.push(chords[chord]);
         }
     }
-    if (!!(Object.keys(labelCounts).includes(label))) {
+    if ((Object.keys(labelCounts).includes(label))) {
         labelCounts[label] = labelCounts[label] + 1;
     } else {
         labelCounts[label] = 1;
@@ -69,7 +68,7 @@ function setProbabilityOfChordsInLabels() {
     Object.keys(probabilityOfChordsInLabels).forEach(function (difficulty) {
         Object.keys(probabilityOfChordsInLabels[difficulty]).forEach(function (chord) {
             probabilityOfChordsInLabels[difficulty][chord] =
-                probabilityOfChordsInLabels[difficulty][chord] * 1.0 / songs.length;
+                probabilityOfChordsInLabels[difficulty][chord] / songs.length;
         });
     });
 }
@@ -89,17 +88,14 @@ setChordCountsInLabels();
 setProbabilityOfChordsInLabels();
 
 function classify(chords) {
-    var total = labelProbabilities;
-    console.log(total);
+    console.log(labelProbabilities);
     var classified = {};
-    Object.keys(total).forEach(function (difficulty) {
+    Object.keys(labelProbabilities).forEach(function (difficulty) {
         var first = labelProbabilities[difficulty] + 1.01;
         chords.forEach(function (chord) {
             var probabilityOfChordInLabel =
                 probabilityOfChordsInLabels[difficulty][chord];
-            if (probabilityOfChordInLabel === undefined) {
-                first + 1.01;
-            } else {
+            if (probabilityOfChordInLabel) {
                 first = first * (probabilityOfChordInLabel + 1.01);
             }
         });
