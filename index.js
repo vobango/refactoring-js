@@ -1,3 +1,9 @@
+function fileName() {
+    var theError = new Error("here I am");
+    return theError.stack.match(/\/(\w+\.js)\:/)[1];
+};
+console.log(`Welcome to ${fileName()}!`);
+
 // songs
 imagine = ['c', 'cmaj7', 'f', 'am', 'dm', 'g', 'e7'];
 somewhereOverTheRainbow = ['c', 'em', 'f', 'g', 'am'];
@@ -24,7 +30,10 @@ var chordCountsInLabels = new Map();
 var probabilityOfChordsInLabels = new Map();
 
 function train(chords, label) {
-    songs.push({label, chords});
+    songs.push({
+        label,
+        chords
+    });
     chords.forEach(chord => allChords.add(chord));
     if (Array.from(labelCounts.keys()).includes(label)) {
         labelCounts.set(label, labelCounts.get(label) + 1);
@@ -92,8 +101,16 @@ function classify(chords) {
         });
         classified.set(difficulty, first);
     });
-    console.log(classified);
+    return classified;
 };
 
-classify(['d', 'g', 'e', 'dm']);
-classify(['f#m7', 'a', 'dadd9', 'dmaj7', 'bm', 'bm7', 'd', 'f#m']);
+var wish = require('wish');
+describe('the file', function () {
+
+    it('classifies', function () {
+        var classified = classify(['f#m7', 'a', 'dadd9', 'dmaj7', 'bm', 'bm7', 'd', 'f#m']);
+        wish(classified.get('easy') === 1.3433333333333333);
+        wish(classified.get('medium') === 1.5060259259259259);
+        wish(classified.get('hard') === 1.6884223991769547);
+    });
+})
