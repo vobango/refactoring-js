@@ -7,7 +7,7 @@ const classifier = {
     difficulties: ['easy', 'medium', 'hard'],
     songs: [],
     allChords: new Set(),
-    addSong: function(name, chords, difficulty) {
+    addSong(name, chords, difficulty) {
       this.songs.push({
         name,
         chords,
@@ -15,13 +15,13 @@ const classifier = {
       });
     },
   },
-  trainAll: function() {
-    this.songList.songs.forEach(function(song) {
+  trainAll() {
+    this.songList.songs.forEach(song => {
       this.train(song.chords, song.difficulty);
     }, this);
     this.setLabelProbabilities();
   },
-  train: function(chords, label) {
+  train(chords, label) {
     chords.forEach(chord => this.songList.allChords.add(chord));
     if (Array.from(this.labelCounts.keys()).includes(label)) {
       this.labelCounts.set(label, this.labelCounts.get(label) + 1);
@@ -29,12 +29,12 @@ const classifier = {
       this.labelCounts.set(label, 1);
     }
   },
-  setLabelProbabilities: function() {
-    this.labelCounts.forEach(function(_count, label) {
+  setLabelProbabilities() {
+    this.labelCounts.forEach((_count, label) => {
       this.labelProbabilities.set(label, this.labelCounts.get(label) / this.songList.songs.length);
     }, this);
   },
-  chordCountForDifficulty: function(difficulty, testChord) {
+  chordCountForDifficulty(difficulty, testChord) {
     return this.songList.songs.reduce((counter, song) => {
       if (song.difficulty === difficulty) {
         counter += song.chords.filter(chord => chord === testChord).length;
@@ -42,14 +42,14 @@ const classifier = {
       return counter;
     }, 0);
   },
-  likeliHoodFromChord: function(difficulty, chord) {
+  likeliHoodFromChord(difficulty, chord) {
     return this.chordCountForDifficulty(difficulty, chord) / this.songList.songs.length;
   },
-  valueForChordDifficulty: function(difficulty, chord) {
+  valueForChordDifficulty(difficulty, chord) {
     const value = this.likeliHoodFromChord(difficulty, chord);
     return value ? value + this.smoothing : 1;
   },
-  classify: function(chords) {
+  classify(chords) {
     return new Map(
       Array.from(this.labelProbabilities.entries()).map(labelWithProbabilty => {
         const difficulty = labelWithProbabilty[0];
@@ -65,7 +65,7 @@ const classifier = {
 };
 
 const wish = require('wish');
-describe('the file', function() {
+describe('the file', () => {
   classifier.songList.addSong('imagine', ['c', 'cmaj7', 'f', 'am', 'dm', 'g', 'e7'], 0);
   classifier.songList.addSong('somewhereOverTheRainbow', ['c', 'em', 'f', 'g', 'am'], 0);
   classifier.songList.addSong('tooManyCooks', ['c', 'g', 'f'], 0);
@@ -85,7 +85,7 @@ describe('the file', function() {
   classifier.songList.addSong('bulletproof', ['d#m', 'g#', 'b', 'f#', 'g#m', 'c#'], 2);
   classifier.trainAll();
 
-  it('classifies', function() {
+  it('classifies', () => {
     const classified = classifier.classify([
       'f#m7',
       'a',
@@ -101,7 +101,7 @@ describe('the file', function() {
     wish(classified.get('hard') === 1.6884223991769547);
   });
 
-  it('labels probabilities', function() {
+  it('labels probabilities', () => {
     wish(classifier.labelProbabilities.get('easy') === 0.3333333333333333);
     wish(classifier.labelProbabilities.get('medium') === 0.3333333333333333);
     wish(classifier.labelProbabilities.get('hard') === 0.3333333333333333);
